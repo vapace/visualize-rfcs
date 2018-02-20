@@ -153,16 +153,10 @@ sub fetch_and_parse_rfc_index {
             my %this_rfc = ();
             $this_rfc{id} = $rfcid;
             $this_rfc{title} = $title;
-            $this_rfc{authors_txt} = $authors;
             $this_rfc{authors} = [ $authors =~ m/([^,]+(?:, (?:Ed\.|II))?)(?:, |\.?$)/g ];
-            $this_rfc{date_txt} = $date;
             my ($d, $M, $y) = $date =~ m/(\d+ )?($MONTH_NAME_REGEX) (\d+)/;
-            $this_rfc{date_y} = int($y);
-            $this_rfc{date_m} = $MONTH_NUM{$M};
-            $this_rfc{date_M} = $M;
-            $this_rfc{date_d} = $d if defined $d;
-            $this_rfc{date_ymd} = int($y)*1_00_00 + $MONTH_NUM{$M}*1_00 + (defined($d) ? int($d) : 0);
-            $this_rfc{format_txt} = $format;
+            $this_rfc{date} = { y => int($y), m => $MONTH_NUM{$M} };
+            $this_rfc{date}{d} = int($d) if defined $d;
             $this_rfc{format} = { $format =~ m/([A-Z]+)=(\d+)/g };
             while (my ($k, $v) = each %{$this_rfc{format}}) {
                 $this_rfc{format}{$k} = int($v);
@@ -236,5 +230,5 @@ sub print_json {
 
     my $json = JSON::PP->new->ascii->pretty->canonical;
 
-    print $json->pretty->encode(\@rfc);
+    print $json->pretty(0)->encode(\@rfc);
 }
